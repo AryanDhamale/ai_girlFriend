@@ -30,7 +30,7 @@ function Page() {
 
          {/* technology we are used! */}
         <div>
-          <h1 className="mb-15 text-center text-xl opacity-50 font-medium tracking-[10px]">Technology we are used '-' </h1>
+          <h1 className="mb-15 text-center text-xl opacity-50 font-medium tracking-[10px]">Technology we are used &apos;-&apos; </h1>
           <div className="flex items-center justify-center gap-x-10">
             <div className="flex items-center gap-x-3"> <SiGooglegemini className="text-xl"/> <span className="font-medium">Google gemini</span></div>
 

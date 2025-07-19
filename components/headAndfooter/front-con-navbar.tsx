@@ -12,7 +12,7 @@ import {
 import Image from "next/image";
 
 function Navbar() {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
 
 
     return (

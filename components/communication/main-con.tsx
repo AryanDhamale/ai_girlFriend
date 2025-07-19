@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { notFound } from "next/navigation";
 import { messageInterface } from "@/models/Message";
@@ -18,52 +18,24 @@ interface for_tracking_buttons {
 
 function MainCon({ type }: { type: string }) { // type = new or id // 
 
-  const [recoginzation, setRecognization] = useState<any>(null);
+  const [recoginzation, setRecognization] = useState<Window['SpeechRecognition'] | Window['webkitSpeechRecognition'] | null>(null);
   const [usertext, setUserText] = useState<string>(''); // override undefined - string //
   const [buttonTracing, setButtonTracing] = useState<for_tracking_buttons>({ isListening: false, isDataSending: false });
   const { data: session, status } = useSession(); // time consuming // 
   const [allMessages, setAllMessages] = useState<messageInterface[]>([]);
   const [converationType, setConverationType] = useState<string>(type); // ltrace conversation = [new , id]
-  const Instrction_for_ai:string = "you are an ai girlfrined of Tejas ,who loves coding and stuff. your name is Keiani, and user will interact with you by voice and the text of what user asked will send to you, you as my love send the answer on give text, give in short , also add emotion in that so user feel like real girl";
+  const Instrction_for_ai: string = "you are an ai girlfrined of Tejas ,who loves coding and stuff. your name is Keiani, and user will interact with you by voice and the text of what user asked will send to you, you as my love send the answer on give text, give in short , also add emotion in that so user feel like real girl";
 
 
-  useEffect(() => {
-
-    const SpeechRecognition = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : undefined;
-
-    if (SpeechRecognition && !recoginzation) {
-      const reco = new SpeechRecognition();
-      reco.continuous = true;
-      reco.maxAlternatives = 1;
-      reco.interimResults = false;
-
-      reco.onerror = (event: any): void => {
-        toast.error(`Error : ${event.error}`, { description: 'Error occured while speechRecognization!' })
-        setButtonTracing({ isListening: false, isDataSending: false });
-      }
-
-      setRecognization(reco);
-    }
-
-    if (status === 'authenticated') {
-      get_all_messages_of_conversation();
-    }
-
-  }, [session, status]);
-
-
-  async function get_all_messages_of_conversation(): Promise<void> {
+  const get_all_messages_of_conversation = useCallback(async (): Promise<void> => {
     try {
-      if (type == 'new' || allMessages.length>0) {
+      if (allMessages.length>0 || converationType=='new') {
         return;
       }
 
-      console.log('calling everytime!');
-
-
       const fetchOptions = {
         method: 'POST',
-        body: JSON.stringify({ converSationId: type, userId: session?.user.id }),
+        body: JSON.stringify({ converSationId: converationType, userId: session?.user.id }),
         headers: {
           'content-type': 'application/json',
           'x-api-key': process.env.NEXT_PUBLIC_CLIENT_ID!
@@ -84,7 +56,35 @@ function MainCon({ type }: { type: string }) { // type = new or id //
       console.log({ error: (err as Error)?.message });
       notFound();
     }
-  }
+  }, [allMessages,session,converationType]);
+
+
+  useEffect(() => {
+
+    const SpeechRecognition = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : undefined;
+
+    if (SpeechRecognition && !recoginzation) {
+      const reco = new SpeechRecognition();
+      reco.continuous = true;
+      reco.maxAlternatives = 1;
+      reco.interimResults = false;
+
+      reco.onerror = (): void => {
+        toast.error("Error occured while speechRecognization!");
+        setButtonTracing({ isListening: false, isDataSending: false });
+      }
+
+      setRecognization(reco);
+    }
+
+    if (status === 'authenticated') {
+      get_all_messages_of_conversation();
+    }
+
+  }, [session, status, get_all_messages_of_conversation,recoginzation]);
+
+
+
 
   async function create_conversation_and_message_in(Content: string, sender: string, conId: string): Promise<string> {
     try {
@@ -120,11 +120,10 @@ function MainCon({ type }: { type: string }) { // type = new or id //
     }
   }
 
-
   // onresult // 
   if (recoginzation) {
-    recoginzation.onresult = (event: any): void => {
-      const text: string | undefined = event?.results[(event?.results?.length - 1)][0].transcript;
+    recoginzation.onresult = (event: SpeechRecognitionEvent): void => {
+      const text: string | undefined = event?.results[event.resultIndex][0].transcript;
       const newText: string = usertext + ' ' + text;
       if (newText !== usertext) {
         setUserText(newText);
@@ -133,7 +132,7 @@ function MainCon({ type }: { type: string }) { // type = new or id //
   }
 
 
-  async function call_google_gemini(text: string, conId: string) {
+  async function call_google_gemini(text: string, conId: string): Promise<void> {
     if (!text) {
       throw new Error('text is required!');
     }
@@ -156,11 +155,11 @@ function MainCon({ type }: { type: string }) { // type = new or id //
 
 
       if (!response.ok) {
-        let message_need_to_throw = responseData.error?.message || 'Something went wrong';
+        const message_need_to_throw = responseData.error?.message || 'Something went wrong';
         throw new Error(message_need_to_throw);
       }
 
-      let need_to_conver_in_voice: string = responseData.candidates[0].content.parts[0].text;
+      const need_to_conver_in_voice: string = responseData.candidates[0].content.parts[0].text;
 
       //setAllMessages((oldVal) => [...oldVal, { converSationId: converationType, sender: 'ai', Content: need_to_conver_in_voice }]);
 
@@ -186,7 +185,7 @@ function MainCon({ type }: { type: string }) { // type = new or id //
 
       const fetchOptions = {
         method: 'POST',
-        body: JSON.stringify({text,speaker_no:184}),
+        body: JSON.stringify({ text, speaker_no: 184, config: { instruction: Instrction_for_ai } }),
         headers: {
           'Content-Type': 'application/json',
           'X-API-KEY': process.env.NEXT_PUBLIC_DUBVERSE!
@@ -197,7 +196,7 @@ function MainCon({ type }: { type: string }) { // type = new or id //
 
       if (!response.ok) {
         const responseData = await response.json();
-        throw new Error(responseData.error ||  'something went wrong!');
+        throw new Error(responseData.error || 'something went wrong!');
       };
 
       setAllMessages((oldVal) => [...oldVal, { converSationId: converationType, sender: 'ai', Content: text }]);
@@ -228,7 +227,7 @@ function MainCon({ type }: { type: string }) { // type = new or id //
 
   }
 
-  async function end_Listening() {
+  async function end_Listening(): Promise<void> {
     recoginzation?.stop();
     setButtonTracing({ isListening: false, isDataSending: true });
     toast.success('Listening ended!');
@@ -254,7 +253,7 @@ function MainCon({ type }: { type: string }) { // type = new or id //
     toast.error('SpeechRecognization has aborted!');
   }
 
-  if (type != 'new' && allMessages.length <= 0) {
+  if (type != 'new' && allMessages.length<=0) {
     return (
       <div className="w-full min-h-[80vh] flex items-center justify-center">
         <h1 className="font-medium text-lg drop-shadow-md">Loading.. </h1>

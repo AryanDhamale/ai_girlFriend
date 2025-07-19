@@ -15,7 +15,7 @@ import {
 import { TbGenderDemigirl } from "react-icons/tb";
 
 import { Home, Search, Settings, MessageSquare } from "lucide-react"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { conversationInterface } from "@/models/Conversation";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
@@ -24,21 +24,17 @@ import Link from "next/link";
 
 function AppSidebar() {
 
-    const [conversation, setAllconversation] = useState<conversationInterface[]>();
-    const { data: session, status} = useSession();
-    
+    const [conversation, setAllconversation] = useState<conversationInterface[]>([]);
+    const { data: session, status } = useSession();
+
     const items = [{ title: "Home", url: "/", icon: Home }, { title: "Search", url: "#", icon: Search }, { title: "Settings", url: "#", icon: Settings }, { title: 'New Chat', url: '/com/new', icon: MessageSquare }];
 
-    useEffect(() => {
-        if(status === "authenticated") {
-            fetch_all_conversation();
-        }
-    },[status, session]);
-
-
-
-    async function fetch_all_conversation(): Promise<void> {
+    const fetch_all_conversation = useCallback(async (): Promise<void> => {
         try {
+
+            if (conversation?.length > 0) {
+                return;
+            }
 
             const fetchOptions = {
                 method: 'POST',
@@ -62,7 +58,14 @@ function AppSidebar() {
             toast.error((err as Error)?.message);
             console.log((err as Error)?.message);
         }
-    }
+    }, [conversation, session]);
+    
+
+    useEffect(() => {
+        if (status === "authenticated") {
+            fetch_all_conversation();
+        }
+    }, [status, session, fetch_all_conversation]);
 
 
 
@@ -98,7 +101,7 @@ function AppSidebar() {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {conversation?.length && conversation.map((ele,idx) =>
+                            {conversation?.length && conversation.map((ele, idx) =>
                                 <SidebarMenuItem key={`${idx}-${ele._id}`}>
                                     <SidebarMenuButton>
                                         <Link href={`/com/${ele._id}`}>{ele.title}..</Link>

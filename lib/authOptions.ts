@@ -2,6 +2,8 @@ import GoogleProvider from "next-auth/providers/google";
 import connectDb from "./connectDb";
 import User from "@/models/user";
 import { userInterface } from "@/models/user";
+import {Session, User as nextAuthUser, Account} from "next-auth";
+import { JWT } from "next-auth/jwt";
 
 export const authOptions = {
     providers: [
@@ -11,7 +13,7 @@ export const authOptions = {
         })
     ],
     callbacks: {
-        async signIn({ user, account }: any) {
+        async signIn({ user, account }: {user : nextAuthUser , account: Account | null} ) {
             if (account?.provider == 'google') {
                 // do registration here // 
                 try {
@@ -22,8 +24,8 @@ export const authOptions = {
                     }
                     else {
                         const userObj:userInterface = {
-                            name: user.name , 
-                            email : user.email,
+                            name: user.name! , 
+                            email : user.email!,
                         }
                         const new_user = await User.create(userObj);
                         user.id = String(new_user._id);
@@ -36,13 +38,13 @@ export const authOptions = {
             }
             return true
         },
-        async session({ session, token }: any) {
+        async session({ session, token }: {session:Session,token:JWT}) {
             if (token.sub) {
                 session.user.id = token.sub;
             }
             return session
         },
-        async jwt({ token, user }: any) {
+        async jwt({ token, user }:{user?: nextAuthUser,token:JWT}) {
             if (user) {
                 token.id = user.id;
             }

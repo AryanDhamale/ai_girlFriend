@@ -34,7 +34,7 @@ async function POST(request: NextRequest) {
                 Content,
             }
 
-            const new_message = await Message.create(messageObj);
+            await Message.create(messageObj); // creating message with new conversation id // 
             return NextResponse.json({ msg: 'message has created!', id:String(new_conversation._id) }, { status: 200 });
         }
         else {
@@ -44,7 +44,7 @@ async function POST(request: NextRequest) {
                 Content,
             }
 
-            const new_message = await Message.create(messageObj);
+            await Message.create(messageObj); // creating message with already exiting conversation id // 
             return NextResponse.json({ msg: 'message has created!' }, { status: 200 });
         }
 
