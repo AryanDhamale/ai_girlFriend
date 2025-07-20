@@ -31,8 +31,9 @@ export const authOptions = {
                         user.id = String(new_user._id);
                     }
 
-                } catch (err) {
+                } catch(err){
                     user.id = 'not_found!';
+                    console.log((err as Error)?.message);
                 }
             }
             return true
