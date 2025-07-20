@@ -106,7 +106,6 @@ function MainCon({ type }: { type: string }) { // type = new or id //
       }
 
       if (type === 'new') {
-        console.log(`changing idType-> ${type}`);
         setConverationType(responseData.id);
         return String(responseData.id);
       }
@@ -115,7 +114,6 @@ function MainCon({ type }: { type: string }) { // type = new or id //
 
     } catch (err) {
       toast.error((err as Error)?.message);
-      console.log((err as Error)?.message);
       return '';
     }
   }
@@ -170,7 +168,6 @@ function MainCon({ type }: { type: string }) { // type = new or id //
     }
     catch (err) {
       toast.error(`Error:${(err as Error)?.message}` || 'Something went wrong!');
-      console.log((err as Error)?.message);
     }
 
   }
@@ -209,7 +206,6 @@ function MainCon({ type }: { type: string }) { // type = new or id //
 
     } catch (err) {
       toast.error((err as Error)?.message);
-      console.log((err as Error)?.message);
       setButtonTracing({ isListening: false, isDataSending: false });
     }
   }
@@ -239,7 +235,6 @@ function MainCon({ type }: { type: string }) { // type = new or id //
         setUserText('');
       } catch (err) {
         toast.error((err as Error)?.message);
-        console.log((err as Error)?.message);
       }
 
     }
@@ -268,12 +263,12 @@ function MainCon({ type }: { type: string }) { // type = new or id //
 
       <div className="w-full min-h-[80vh] p-5 flex flex-col gap-y-5">
 
-        <div className="flex-1 relative overflow-y-auto p-4 space-y-2">
+        <div className="flex-1 relative overflow-y-auto sm:p-4 space-y-5 sm:space-y-2">
 
-          {(type == 'new' && allMessages?.length <= 0) && <h1 className="absolute top-1/2 left-1/2 -transform -translate-1/2 w-full text-3xl font-medium drop-shadow-md text-center">Welcome my name is Keiani how can i help you!</h1>}
+          {(type == 'new' && allMessages?.length <= 0) && <h1 className="absolute top-1/2 left-1/2 -transform -translate-1/2 w-full text-xl md:text-3xl font-medium drop-shadow-md text-center">Welcome my name is Keiani how can i help you!</h1>}
 
           {allMessages?.length > 0 && allMessages.map((ele, idx) => <div key={`${ele.Content.slice(0, 5)}-${idx}`} className={`flex ${ele.sender == 'ai' ? 'justify-start' : 'justify-end'}`}>
-            <div className={`${ele.sender == 'ai' ? 'bg-gray-300 text-black' : 'bg-green-400 text-white'} rounded-lg px-4 py-2 max-w-md break-words`}>{ele.Content}</div>
+            <div className={`${ele.sender == 'ai' ? 'bg-gray-300 text-black' : 'bg-green-400 text-white'} rounded-lg px-4 py-2 text-sm max-w-[200px] md:max-w-md break-words`}>{ele.Content}</div>
           </div>)}
 
         </div>
@@ -283,14 +278,14 @@ function MainCon({ type }: { type: string }) { // type = new or id //
 
 
       {/* floating box */}
-      <div className="min-h-20 mx-auto w-[85%] flex">
+      <div className="min-h-20 mx-auto w-[95%]  md:w-[98%] lg:w-[85%] flex max-md:flex-col">
         {/* for text */}
         <div className="flex-1">
           <textarea value={usertext} readOnly={true} className="w-full h-full p-3 rounded-lg border outline-0 "></textarea>
         </div>
 
         {/* for button */}
-        <div className="w-1/5 h-20 flex items-center justify-center">
+        <div className="w-full md:w-1/5 h-20 flex items-center justify-center">
           {
             (buttonTracing.isListening && !buttonTracing.isDataSending) &&
             <div className="flex flex-col gap-y-2">

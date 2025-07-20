@@ -32,7 +32,6 @@ export const authOptions = {
                     }
 
                 } catch (err) {
-                    console.log((err as Error)?.message);
                     user.id = 'not_found!';
                 }
             }

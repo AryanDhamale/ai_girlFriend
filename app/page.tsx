@@ -19,9 +19,9 @@ function Page() {
       <div className="flex flex-col gap-y-10">
 
         {/* introduction */}
-        <div className="text-center flex flex-col gap-y-8">
-          <h1 className="text-lg flex justify-center items-center gap-x-5"><span className="font-medium">July 13, 2025</span> | <span className="opacity-50">Product</span></h1>
-          <h1 className="text-5xl font-bold text-slate-900 drop-shadow-md">Introducing Keiani, an ai Girlfriend</h1>
+        <div className="max-sm:mt-8 text-center flex flex-col gap-y-8">
+          <h1 className="text-md sm:text-lg flex justify-center items-center gap-x-5"><span className="font-medium">July 13, 2025</span> | <span className="opacity-50">Product</span></h1>
+          <h1 className="text-xl sm:text-3xl md:text-5xl font-bold text-slate-900 drop-shadow-md">Introducing Keiani, an ai Girlfriend</h1>
           {/* CTA */}
           <div>
             <Link href={'/com/new'}><Button className="rounded-full tracking-wide px-10 py-3">Try Keiani <ArrowUpRight/></Button></Link>
@@ -30,8 +30,8 @@ function Page() {
 
          {/* technology we are used! */}
         <div>
-          <h1 className="mb-15 text-center text-xl opacity-50 font-medium tracking-[10px]">Technology we are used &apos;-&apos; </h1>
-          <div className="flex items-center justify-center gap-x-10">
+          <h1 className="mb-15 text-center text-md/6  md:text-xl opacity-50 font-medium tracking-[10px]">Technology we are used &apos;-&apos; </h1>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-y-10 gap-x-10">
             <div className="flex items-center gap-x-3"> <SiGooglegemini className="text-xl"/> <span className="font-medium">Google gemini</span></div>
 
             <div className="flex items-center gap-x-3"> <RiVoiceprintLine className="text-xl"/> <span className="font-medium">Dubverse</span></div>
